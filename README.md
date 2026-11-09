@@ -40,7 +40,7 @@ R²는 같은 평가 기간의 실측 출력 평균을 기준으로 `1 − Σ(�
 
 **결론:** 전체 평가 기간에는 머신러닝이 단순 물리식보다 정확하지 않았다. 풍속 0–12 m/s 구간에서는 ML의 MAE가 물리식보다 낮았지만, 12 m/s 이상에서 ML 오차가 크게 증가했다. `results/03_mae_by_wind_speed.png`와 `mae_by_wind_speed.csv`에 구간별 결과가 있다. 원인은 이 데이터만으로 단정할 수 없다. 실제 출력 0이면서 풍속이 12 m/s 이상인 평가 사례가 35개 있고, 정지·제한 운전 상태를 나타내는 변수가 없다는 한계가 있다. 또한 제조사 곡선과 물리식의 양의 편향은 실제 운전 출력을 과대평가한다는 뜻이다.
 
-`results/01_time_comparison.png`는 평가 첫 24시간, `02_power_curve.png`는 풍속별 출력, `03_mae_by_wind_speed.png`는 풍속 구간별 MAE다. `predictions.csv`에는 각 평가 시점의 입력·실측·세 예측이 있고 `metrics.json`에는 학습 구간과 지표가 있다. 실행할 때 이 파일들이 다시 생성된다.
+`results/01_time_comparison.png`는 평가 첫 24시간, `02_power_curve.png`는 풍속별 출력과 물리식·제조사 곡선의 R², `03_mae_by_wind_speed.png`는 풍속 구간별 MAE다. **`04_actual_vs_predicted_r2.png`는 실측값(x축)과 예측값(y축)을 세 방법별로 비교하고 R²를 각 패널에 표시한다.** 산점도는 약 2,500행으로 간추려 그렸지만 R²는 평가 기간 전체 12,619행으로 계산했다. `predictions.csv`에는 각 평가 시점의 입력·실측·세 예측이 있고 `metrics.json`에는 학습 구간과 지표가 있다. 실행할 때 이 파일들이 다시 생성된다.
 
 ## 한계와 후속 실험
 

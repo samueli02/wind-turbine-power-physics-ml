@@ -99,7 +99,7 @@ def score(actual: np.ndarray, predicted: np.ndarray) -> dict:
     }
 
 
-def save_plots(prediction: pd.DataFrame, out: Path) -> None:
+def save_plots(prediction: pd.DataFrame, scores: dict, out: Path) -> None:
     plt.rcParams.update({"font.size": 11, "axes.grid": True, "grid.alpha": 0.2})
 
     # Figure 1: a short contiguous held-out window suitable for a demo.
@@ -125,9 +125,11 @@ def save_plots(prediction: pd.DataFrame, out: Path) -> None:
     ax.scatter(subset["wind_ms"], subset["actual_kw"], s=6, alpha=0.16, label="Measured")
     order = np.argsort(prediction["wind_ms"].to_numpy())
     ax.plot(prediction["wind_ms"].to_numpy()[order], prediction["physics_kw"].to_numpy()[order],
-            color="#3c8d7a", linewidth=2, label="Cubic physics")
+            color="#3c8d7a", linewidth=2,
+            label=f"Cubic physics (R2={scores['physics']['r2']:.4f})")
     ax.plot(prediction["wind_ms"].to_numpy()[order], prediction["maker_kw"].to_numpy()[order],
-            color="#8b80b6", linewidth=2, alpha=0.8, label="Manufacturer curve")
+            color="#8b80b6", linewidth=2, alpha=0.8,
+            label=f"Manufacturer curve (R2={scores['manufacturer']['r2']:.4f})")
     ax.set(xlabel="Wind speed (m/s)", ylabel="Power (kW)", title="Power curve and measured spread")
     ax.legend()
     fig.tight_layout()
@@ -153,6 +155,32 @@ def save_plots(prediction: pd.DataFrame, out: Path) -> None:
     ax.figure.savefig(out / "03_mae_by_wind_speed.png", dpi=180)
     plt.close(ax.figure)
     bar.to_csv(out / "mae_by_wind_speed.csv", index=False)
+
+    # Figure 4: regression-style actual-versus-predicted panels. R2 is
+    # computed on every held-out row, not just the plotted scatter sample.
+    methods = [
+        ("physics_kw", "Cubic physics", "physics", "#3c8d7a"),
+        ("maker_kw", "Manufacturer curve", "manufacturer", "#8b80b6"),
+        ("ml_kw", "Machine learning", "machine_learning", "#ef6c35"),
+    ]
+    sample = prediction.iloc[:: max(1, len(prediction) // 2500)]
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5), sharex=True, sharey=True)
+    for ax, (column, title, key, color) in zip(axes, methods):
+        ax.scatter(sample["actual_kw"], sample[column], s=7, alpha=0.18, color=color)
+        ax.plot([0, 3800], [0, 3800], "--", color="#52606d", linewidth=1.2,
+                label="Perfect agreement")
+        ax.set(xlim=(0, 3800), ylim=(0, 3800), xlabel="Measured power (kW)",
+               title=title)
+        ax.text(0.05, 0.94,
+                f"R2 = {scores[key]['r2']:.4f}\nMAE = {scores[key]['mae_kw']:.1f} kW",
+                transform=ax.transAxes, va="top", fontsize=11,
+                bbox={"boxstyle": "round,pad=0.4", "facecolor": "white", "alpha": 0.9,
+                      "edgecolor": "#dce5ea"})
+    axes[0].set_ylabel("Estimated power (kW)")
+    fig.suptitle(f"Held-out actual vs. estimated power (R2 on all {len(prediction):,} rows)")
+    fig.tight_layout()
+    fig.savefig(out / "04_actual_vs_predicted_r2.png", dpi=180)
+    plt.close(fig)
 
 
 def main() -> None:
@@ -199,7 +227,7 @@ def main() -> None:
     }
     prediction.to_csv(args.out / "predictions.csv", index=False)
     (args.out / "metrics.json").write_text(json.dumps(metrics, indent=2, ensure_ascii=False), encoding="utf-8")
-    save_plots(prediction, args.out)
+    save_plots(prediction, metrics["scores"], args.out)
 
     print("Train:", len(train), "rows through", metrics["train_end"])
     print("Test:", len(test), "rows from", metrics["test_start"])
