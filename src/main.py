@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 
 SOURCE_COLUMNS = ["Date/Time", "LV ActivePower (kW)", "Wind Speed (m/s)"]
@@ -95,6 +95,7 @@ def score(actual: np.ndarray, predicted: np.ndarray) -> dict:
         "mae_kw": round(float(mean_absolute_error(actual, predicted)), 3),
         "rmse_kw": round(float(np.sqrt(mean_squared_error(actual, predicted))), 3),
         "bias_kw": round(float(np.mean(predicted - actual)), 3),
+        "r2": round(float(r2_score(actual, predicted)), 4),
     }
 
 
@@ -204,7 +205,10 @@ def main() -> None:
     print("Test:", len(test), "rows from", metrics["test_start"])
     print("Physics coefficient k:", round(physics["k_kw_per_ms_cubed"], 4), "kW/(m/s)^3")
     for name, values in metrics["scores"].items():
-        print(f"{name:>16}: MAE={values['mae_kw']:.1f} kW, RMSE={values['rmse_kw']:.1f} kW")
+        print(
+            f"{name:>16}: MAE={values['mae_kw']:.1f} kW, "
+            f"RMSE={values['rmse_kw']:.1f} kW, R2={values['r2']:.4f}"
+        )
     print("Saved:", args.out.resolve())
 
 

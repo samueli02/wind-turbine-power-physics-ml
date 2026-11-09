@@ -13,7 +13,7 @@
   "train_end": "2018-09-26 19:10:00",
   "test_start": "2018-09-26 19:20:00",
   "physics_parameters": {
-    "k_kw_per_ms_cubed": 2.8020060940227536,
+    "k_kw_per_ms_cubed": 2.8020060940227527,
     "cut_in_ms": 3.00068402290344,
     "rated_kw": 3600.0
   },
@@ -26,17 +26,20 @@
     "physics": {
       "mae_kw": 210.0,
       "rmse_kw": 450.208,
-      "bias_kw": 180.197
+      "bias_kw": 180.197,
+      "r2": 0.8837
     },
     "manufacturer": {
       "mae_kw": 192.641,
       "rmse_kw": 429.356,
-      "bias_kw": 173.981
+      "bias_kw": 173.981,
+      "r2": 0.8942
     },
     "machine_learning": {
       "mae_kw": 236.483,
       "rmse_kw": 480.8,
-      "bias_kw": -97.351
+      "bias_kw": -97.351,
+      "r2": 0.8674
     }
   }
 }
