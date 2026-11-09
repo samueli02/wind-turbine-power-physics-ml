@@ -1,0 +1,6 @@
+__pycache__/
+.venv/
+*.pyc
+results/predictions.csv
+data/T1.csv
+video/*.mp4
